@@ -6,19 +6,49 @@
 //
 
 import SwiftUI
+import SwiftSoup
 
 struct ContentView: View {
+    @State private var headlines: [String] = []
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationView {
+            List(headlines, id: \.self) { headline in
+                Text(headline)
+            }
+            .navigationTitle("Headlines")
+            .onAppear(perform: fetchData)
         }
-        .padding()
+    }
+
+    func fetchData() {
+        guard let url = URL(string: "https://hcdev.ru/html/h2/") else {
+            return
+        }
+
+        do {
+            let html = try String(contentsOf: url)
+            let doc = try SwiftSoup.parse(html)
+            let elements = try doc.select("p")
+
+            var headlines: [String] = []
+
+            for element in elements {
+                let headline = try element.text()
+                headlines.append(headline)
+            }
+
+            DispatchQueue.main.async {
+                self.headlines = headlines
+            }
+        } catch {
+            print("Error fetching or parsing data: \(error)")
+        }
     }
 }
 
-#Preview {
-    ContentView()
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
 }
