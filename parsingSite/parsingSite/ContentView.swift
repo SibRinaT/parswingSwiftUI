@@ -16,7 +16,7 @@ struct ContentView: View {
             List(headlines, id: \.self) { headline in
                 Text(headline)
             }
-            .navigationTitle("Headlines")
+            .navigationTitle("All <p> from site")
             .onAppear(perform: fetchData)
         }
     }
